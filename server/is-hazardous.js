@@ -14,6 +14,7 @@ export default async (req, res) => {
 
     // Get the list of items to check from the request body
     const itemsToCheck = req.body.items;
+    console.log(itemsToCheck);
 
     // Check each item and filter out hazardous ones
     const hazardousItems = itemsToCheck.filter((item) =>
@@ -27,3 +28,4 @@ export default async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
+ 
