@@ -1,0 +1,34 @@
+{
+  "manifest_version": 3,
+  "name": "Substance Checker",
+  "version": "1.0",
+  "permissions": ["storage", "activeTab", "contextMenus", "scripting"],
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "commands": {
+    "_execute_action": {
+      "suggested_key": {
+        "default": "Ctrl+I",
+        "mac": "Command+I"
+      },
+      "description": "check the substances for known danger"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["p65chemicalslist.csv"],
+      "matches": ["<all_urls>"]
+    }
+  ],
+  "host_permissions": ["http://*/*", "https://*/*"]
+}
