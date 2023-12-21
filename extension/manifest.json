@@ -24,11 +24,6 @@
       "js": ["content.js"]
     }
   ],
-  "web_accessible_resources": [
-    {
-      "resources": ["p65chemicalslist.csv"],
-      "matches": ["<all_urls>"]
-    }
-  ],
+
   "host_permissions": ["http://*/*", "https://*/*"]
 }

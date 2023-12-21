@@ -1,54 +1,28 @@
 // Function to load and parse the CSV file
-function loadChemicalList() {
-  return fetch(chrome.runtime.getURL("p65chemicalslist.csv"))
-    .then((response) => response.text())
-    .then((text) => {
-      const lines = text.split("\n");
-      return lines
-        .map((line) => {
-          const [chemical] = line.split(",");
-          return chemical ? chemical.trim() : "";
-        })
-        .filter((chemical) => chemical); // Filter out empty strings
-    })
-    .catch((error) => console.error("Error loading chemical list:", error));
-}
-
-// Load the chemical list and then initialize the extension functionalities
-loadChemicalList().then((chemicals) => {
-  // Append the loaded chemicals to the knownProblematicIngredients array
-  knownProblematicIngredients.push(...chemicals);
-
-  // Initialize the extension functionalities
-  initializeExtension();
+chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+  analyzeText(request.text);
 });
 
-// Predefined list of problematic ingredients
-const knownProblematicIngredients = [
-  "Sodium Laureth Sulfate",
-  "Parabens",
-  "Phthalates",
-  "Formaldehyde",
-  "Triclosan",
-  "Oxybenzone",
-];
+// Load the chemical list and then initialize the extension functionalities
 
-function initializeExtension() {
-  // Listen for messages from the background script
-  chrome.runtime.onMessage.addListener(function (
-    request,
-    sender,
-    sendResponse
-  ) {
-    analyzeText(request.text);
-  });
-}
+// Predefined list of problematic ingredients
+const knownProblematicIngredients = [];
+
+// Listen for messages from the background script
 
 function analyzeText(text) {
   // Ensure the chemical list is loaded
-  if (!window.knownProblematicIngredients) {
-    console.error("Chemical list not loaded yet");
-    return;
+  if (
+    !window.knownProblematicIngredients &&
+    knownProblematicIngredients.length === 0
+  ) {
+    loadChemicalList().then((chemicals) => {
+      // Append the loaded chemicals to the knownProblematicIngredients array
+      knownProblematicIngredients.push(...chemicals);
+
+      // Initialize the extension functionalities
+      // initializeExtension();
+    });
   }
   // Split the text by common delimiters like commas, new lines, semicolons, etc.
   const ingredients = text
@@ -108,4 +82,21 @@ function showBubble(message) {
   setTimeout(function () {
     bubble.remove();
   }, 5000);
+}
+
+// Function to load and parse the CSV file
+async function loadChemicalList() {
+  try {
+    // Send a request to the Napkin endpoint
+    const response = await fetch("https://silver-box.npkn.net/is-hazardous/");
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    // Read the response as JSON
+    const data = await response.json();
+    // Assuming the response is an array of chemical names
+    return data;
+  } catch (error) {
+    console.error("Error loading chemical list:", error);
+  }
 }

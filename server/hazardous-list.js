@@ -41,13 +41,39 @@ const styledBlock = `
   body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 2rem; background-color: #f4f4f4; color: #333; }
   h1 { color: #333; }
   #search { margin-bottom: 1rem; padding: 0.5rem; width: 300px; font-size: 16px; border-radius: 5px; border: 1px solid #ccc; }
-  .chemical-list { max-height: 75vh; overflow: auto; border: 1px solid #ccc; padding: 0; margin-top: 1rem; border-radius: 5px; background-color: #fff; }
+  .chemical-list { max-height: 70vh; overflow: auto; border: 1px solid #ccc; padding: 0; margin-top: 1rem; border-radius: 5px; background-color: #fff; }
   .chemical-list li { padding: 0.5rem 1rem; border-bottom: 1px solid #eee; }
   .chemical-list li:last-child { border-bottom: none; }
-  .highlight { background-color: #fff3cd; }
+  .highlight { background-color: #fff3cd; } /* Pastel yellow highlight */
   .chemical-list a { text-decoration: none; color: inherit; cursor: pointer; }
   .chemical-list a:hover { text-decoration: underline; }
-</style>`;
+  ::-webkit-scrollbar-track {
+    background: rgb(0,0,0);
+    border: 4px solid transparent;
+    background-clip: content-box; /* THIS IS IMPORTANT */
+  }
+  ::-webkit-scrollbar-thumb {
+    radius: 4px
+    background-color: 'green'
+    background-clip: content-box; /* THIS IS IMPORTANT */
+  }
+  </style>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('search').addEventListener('input', function(e) {
+            var value = e.target.value;
+            var items = document.querySelectorAll('.chemical-list li');
+            items.forEach(function(item) {
+                if (value && item.textContent.toLowerCase().includes(value.toLowerCase())) {
+                    item.classList.add('highlight');
+                    item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                } else {
+                    item.classList.remove('highlight');
+                }
+            });
+        });
+    });
+</script>`;
 
 // API route handler
 export default async (req, res) => {
@@ -87,7 +113,7 @@ export default async (req, res) => {
       content = htmlResponse;
     } else {
       // Sending JSON response
-      content = knownProblematicIngredients;
+      content = { data: knownProblematicIngredients };
     }
 
     // Send the appropriate response
@@ -101,3 +127,4 @@ export default async (req, res) => {
     res.status(500).send("<h1>Internal Server Error</h1>");
   }
 };
+ 
